@@ -33,7 +33,9 @@ function escapeHtml(value = "") {
 
 function getFileType(item) {
   if (item.file_type) return item.file_type;
-  const fileName = item.fileName || "";
+  if (item.tipo === "imagem") return "image";
+  if (item.tipo) return item.tipo;
+  const fileName = item.fileName || item.metadados?.nome_arquivo || "";
   if (fileName.toLowerCase().endsWith(".pdf")) return "pdf";
   return "file";
 }
@@ -41,7 +43,7 @@ function getFileType(item) {
 function createPreviewHtml(item) {
   if (!item.file_url) return "";
   const url = escapeHtml(item.file_url);
-  const title = escapeHtml(item.title || "conteúdo");
+  const title = escapeHtml(item.titulo || item.title || "conteúdo");
   const type = getFileType(item);
 
   if (type === "image") {
@@ -150,21 +152,23 @@ function updateCards() {
 }
 
 function createCardHtml(item) {
-  const formattedDate = item.date || formatDate(new Date());
+  const formattedDate = item.date || (item.data_publicacao ? formatDate(new Date(item.data_publicacao)) : formatDate(new Date()));
   const fileType = getFileType(item);
-  const pageLabel = fileType === "pdf" && item.page_count
-    ? ` · ${item.page_count} página${item.page_count === 1 ? "" : "s"}`
+  const pageCount = item.page_count || item.metadados?.paginas;
+  const pageLabel = fileType === "pdf" && pageCount
+    ? ` · ${pageCount} página${pageCount === 1 ? "" : "s"}`
     : "";
+  const fileName = item.fileName || item.metadados?.nome_arquivo;
   return `
-    <article class="content-card" data-category="${escapeHtml(item.tag || item.categoria || "online")}">
+    <article class="content-card" data-category="${escapeHtml(item.categoria || item.tag || item.tipo || "online")}">
       <div class="card-header">
-        <span class="card-badge">${escapeHtml(item.tag || item.categoria || "Online")}</span>
+        <span class="card-badge">${escapeHtml(item.categoria || item.tag || item.tipo || "Online")}</span>
         <span class="card-date">${escapeHtml(formattedDate)}</span>
       </div>
       ${createPreviewHtml(item)}
-      <h2>${escapeHtml(item.title || "Sem título")}</h2>
-      <p>${escapeHtml(item.description || "Descrição não disponível.")}</p>
-      <div class="card-meta">${item.fileName ? `Formato: ${escapeHtml(item.fileName)}${pageLabel}` : "Formato: online"}</div>
+      <h2>${escapeHtml(item.titulo || item.title || "Sem título")}</h2>
+      <p>${escapeHtml(item.descricao || item.description || "Descrição não disponível.")}</p>
+      <div class="card-meta">${fileName ? `Formato: ${escapeHtml(fileName)}${pageLabel}` : "Formato: online"}</div>
     </article>`;
 }
 
@@ -181,7 +185,7 @@ async function loadContentData() {
 
   const uniqueTags = [
     "all",
-    ...Array.from(new Set(items.map((item) => item.tag || "").filter(Boolean))),
+    ...Array.from(new Set(items.map((item) => item.categoria || item.tipo || "").filter(Boolean))),
   ];
 
   renderFilterOptions(uniqueTags.length > 1 ? uniqueTags : ["all", "pdf", "post", "instagram", "online"]);

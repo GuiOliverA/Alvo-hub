@@ -56,6 +56,7 @@ function formatDate(date) {
 
 function getDateValue(item) {
   if (item.date) return item.date;
+  if (item.data_publicacao) return new Date(item.data_publicacao).toLocaleDateString("pt-BR");
   if (item.created_at) return new Date(item.created_at).toLocaleDateString("pt-BR");
   return formatDate(new Date());
 }
@@ -74,6 +75,11 @@ function getFileType(file) {
   if (file.type.startsWith("image/")) return "image";
   if (file.type.startsWith("video/")) return "video";
   return "file";
+}
+
+function normalizeFileType(type) {
+  if (type === "imagem") return "image";
+  return type || "file";
 }
 
 async function getPdfPageCount(file) {
@@ -115,14 +121,14 @@ async function loadAdminData() {
 
     if (items.length) {
       contents = items.map((item) => ({
-        title: item.title || item.fileName || "Sem título",
-        fileName: item.fileName || "Sem nome",
+        title: item.titulo || "Sem título",
+        fileName: item.metadados?.nome_arquivo || "Sem nome",
         date: getDateValue(item),
-        tag: item.tag || "online",
-        description: item.description || "Descrição não disponível.",
+        tag: item.categoria || item.tipo || "online",
+        description: item.descricao || "Descrição não disponível.",
         file_url: item.file_url,
-        file_type: item.file_type,
-        page_count: item.page_count,
+        file_type: normalizeFileType(item.tipo),
+        page_count: item.metadados?.paginas,
       }));
     }
   } catch (error) {
@@ -310,7 +316,6 @@ uploadForm?.addEventListener("submit", async (event) => {
     fileName: selectedFile.name,
     date: formatDate(new Date()),
     tag: selectedTag,
-    categoria: selectedTag,
     description: descriptionInput?.value.trim() || `Upload: ${selectedFile.type || "tipo não identificado"}`,
     file_type: fileType,
     page_count: pageCount,
@@ -324,7 +329,20 @@ uploadForm?.addEventListener("submit", async (event) => {
       storagePath = upload.path;
       newItem.file_url = upload.url;
       newItem.storage_path = upload.path;
-      await insertContentItem(newItem);
+      await insertContentItem({
+        titulo: newItem.title,
+        descricao: newItem.description,
+        tipo: fileType === "image" ? "imagem" : fileType,
+        categoria: selectedTag,
+        file_url: upload.url,
+        tamanho_bytes: selectedFile.size,
+        metadados: {
+          nome_arquivo: selectedFile.name,
+          mime_type: selectedFile.type || null,
+          paginas: pageCount,
+          storage_path: upload.path,
+        },
+      });
       contents.unshift(newItem);
       renderContents();
       showMessage(fileType === "pdf" ? `PDF enviado com ${pageCount} página(s).` : "Conteúdo enviado e exibido no painel.");

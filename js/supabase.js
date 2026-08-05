@@ -43,7 +43,8 @@ async function fetchContentItems() {
     const { data, error } = await supabaseClient
         .from("conteudos")
         .select("*")
-        .eq("status", "ativo");
+        .eq("status", "ativo")
+        .order("data_publicacao", { ascending: false });
     if (error) {
         console.warn("Supabase fetchContentItems error:", error.message);
         return [];
@@ -66,7 +67,7 @@ async function fetchTags() {
 
 async function insertContentItem(item) {
     if (!supabaseClient) throw new Error("Supabase não está configurado.");
-    const { data, error } = await supabaseClient.from("conteudos").insert([item]);
+    const { data, error } = await supabaseClient.from("conteudos").insert([item]).select().single();
     if (error) throw error;
     return data;
 }
