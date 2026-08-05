@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conteúdo | Alvo Hub</title>
+  <link rel="icon" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/conteudo.css" />
+</head>
+
+<body>
+  <div class="page-shell">
+    <section class="page-frame">
+      <div class="page-header">
+        <div>
+          <p class="eyebrow">Alvo Hub</p>
+          <h1>Conteúdo disponível</h1>
+          <p class="subtitle">Encontre materiais práticos para comunicação interna, posts, PDF e conteúdo online.</p>
+        </div>
+        <span class="status-pill">Visão usuário comum</span>
+      </div>
+
+      <header class="topbar">
+        <div class="topbar-left">
+          <span class="greeting">Olá, equipe Alvo Hub</span>
+        </div>
+
+        <div class="topbar-center">
+          <label class="search-label" for="searchInput">Buscar conteúdo</label>
+          <div class="search-wrapper">
+            <input id="searchInput" type="search" placeholder="Pesquisar por tema, formato ou palavra-chave"
+              autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="date-tag" id="currentDate">Publicação: 04/08/2026</div>
+          <a href="/" class="button">Sair</a>
+          <button id="filterBtn" class="button">Categorias</button>
+        </div>
+      </header>
+
+      <div id="filterPanel" class="filter-panel hidden">
+        <button class="filter-option active" data-filter="all">Todos</button>
+        <button class="filter-option" data-filter="pdf">PDF</button>
+        <button class="filter-option" data-filter="post">Post</button>
+        <button class="filter-option" data-filter="instagram">Instagram</button>
+        <button class="filter-option" data-filter="online">Online</button>
+      </div>
+
+      <main class="content-area">
+        <article class="content-card" data-category="pdf">
+          <div class="card-header">
+            <span class="card-badge">PDF</span>
+            <span class="card-date">12/07/2026</span>
+          </div>
+          <h2>Posicionamento de marca</h2>
+          <p>Guia tático com identidade, tom de voz e princípios de marca para suas comunicações.</p>
+          <div class="card-meta">Formato: PDF · 16 páginas</div>
+        </article>
+
+        <article class="content-card" data-category="post">
+          <div class="card-header">
+            <span class="card-badge">Post</span>
+            <span class="card-date">18/07/2026</span>
+          </div>
+          <h2>Artes para redes sociais</h2>
+          <p>Conjunto de layouts prontos para postagens com design alinhado à marca.</p>
+          <div class="card-meta">Formato: Imagem · 10 artes</div>
+        </article>
+
+        <article class="content-card" data-category="instagram">
+          <div class="card-header">
+            <span class="card-badge">Instagram</span>
+            <span class="card-date">22/07/2026</span>
+          </div>
+          <h2>Padrão de postagens</h2>
+          <p>Referências e grade de conteúdo para manter coesão visual no Instagram.</p>
+          <div class="card-meta">Formato: Template · 8 peças</div>
+        </article>
+
+        <article class="content-card" data-category="online">
+          <div class="card-header">
+            <span class="card-badge">Online</span>
+            <span class="card-date">28/07/2026</span>
+          </div>
+          <h2>Conteúdo Alvo Online</h2>
+          <p>Material para campanhas digitais com sugestões de temas e calls-to-action.</p>
+          <div class="card-meta">Formato: Texto · 6 páginas</div>
+        </article>
+
+        <article class="content-card" data-category="post">
+          <div class="card-header">
+            <span class="card-badge">Post</span>
+            <span class="card-date">01/08/2026</span>
+          </div>
+          <h2>Artes institucionais</h2>
+          <p>Posts institucionais + legendas para comunicar valores e resultados da empresa.</p>
+          <div class="card-meta">Formato: Imagem · 12 artes</div>
+        </article>
+      </main>
+
+      <div id="paginationControls" class="pagination"></div>
+
+      <div id="noResults" class="no-results hidden">
+        Nenhum conteúdo encontrado. Ajuste a pesquisa ou selecione outra categoria.
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="js/conteudo.js"></script>
+</body>
+
+</html>

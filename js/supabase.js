@@ -1,0 +1,80 @@
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const SUPABASE_URL = "https://YOUR_PROJECT_REF.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR_PUBLIC_ANON_KEY";
+
+const hasSupabaseConfig =
+    SUPABASE_URL !== "https://YOUR_PROJECT_REF.supabase.co" &&
+    SUPABASE_ANON_KEY !== "YOUR_PUBLIC_ANON_KEY";
+
+const supabaseClient = hasSupabaseConfig
+    ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
+function getSupabaseStatus() {
+    return { enabled: Boolean(supabaseClient), url: SUPABASE_URL };
+}
+
+async function signInWithSupabase(email, password) {
+    if (!supabaseClient) throw new Error("Supabase não está configurado.");
+    return supabaseClient.auth.signInWithPassword({ email, password });
+}
+
+async function signUpWithSupabase({ email, password, nome, cpf, whatsapp }) {
+    if (!supabaseClient) throw new Error("Supabase não está configurado.");
+    return supabaseClient.auth.signUp({
+        email,
+        password,
+        options: { data: { nome, cpf, whatsapp } }
+    });
+}
+
+async function resetPasswordSupabase(email) {
+    if (!supabaseClient) throw new Error("Supabase não está configurado.");
+    return supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/security/senha-recup`,
+    });
+}
+
+async function fetchContentItems() {
+    if (!supabaseClient) return [];
+    const { data, error } = await supabaseClient
+        .from("conteudos")
+        .select("*")
+        .eq("status", "ativo");
+    if (error) {
+        console.warn("Supabase fetchContentItems error:", error.message);
+        return [];
+    }
+    return Array.isArray(data) ? data : [];
+}
+
+async function fetchTags() {
+    if (!supabaseClient) return [];
+    const { data, error } = await supabaseClient.from("conteudos").select("categoria");
+    if (error) {
+        console.warn("Supabase fetchTags error:", error.message);
+        return [];
+    }
+    const uniqueTags = Array.from(
+        new Set(data.map((item) => item.categoria || "").filter(Boolean))
+    );
+    return ["all", ...uniqueTags];
+}
+
+async function insertContentItem(item) {
+    if (!supabaseClient) throw new Error("Supabase não está configurado.");
+    const { data, error } = await supabaseClient.from("conteudos").insert([item]);
+    if (error) throw error;
+    return data;
+}
+
+export {
+    getSupabaseStatus,
+    signInWithSupabase,
+    signUpWithSupabase,
+    resetPasswordSupabase,
+    fetchContentItems,
+    fetchTags,
+    insertContentItem,
+};

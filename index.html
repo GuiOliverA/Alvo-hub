@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Alvo Hub</title>
+    <link rel="icon" href="assets/logo.png" />
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/security.css" />
+</head>
+
+<body>
+
+    <div class="auth-shell">
+        <div class="auth-card">
+            <header class="auth-header">
+                <p class="eyebrow">Bem-vindo</p>
+                <h1>Entrar no Alvo Hub</h1>
+                <p>Use seu e-mail ou telefone e senha para acessar os materiais. Se você ainda não tem conta,
+                    cadastre-se.
+                </p>
+            </header>
+
+            <form id="loginForm" class="auth-form" novalidate>
+                <div class="input-group">
+                    <label class="label" for="loginUser">E-mail ou telefone</label>
+                    <input id="loginUser" name="loginUser" class="input-field" type="text"
+                        placeholder="E-mail ou telefone" autocomplete="username" />
+                </div>
+
+                <div class="input-group">
+                    <label class="label" for="loginPassword">Senha</label>
+                    <input id="loginPassword" name="loginPassword" class="input-field" type="password"
+                        placeholder="Senha" autocomplete="current-password" />
+                </div>
+
+                <div class="auth-actions">
+                    <button type="submit" class="button-primary">Entrar</button>
+                    <a class="form-link" href="security/senha-recup">Esqueci minha senha</a>
+                </div>
+            </form>
+
+            <div class="message-box hidden" aria-live="polite"></div>
+
+            <div class="form-footer">
+                <p class="form-note">Ainda não tem conta?</p>
+                <a class="form-link" href="security/cadastro">Criar uma conta</a>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="js/security.js"></script>
+</body>
+
+</html>

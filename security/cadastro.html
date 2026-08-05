@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro | Alvo Hub</title>
+    <link rel="icon" href="../assets/logo.png" />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/security.css" />
+</head>
+
+<body>
+    <div class="auth-shell">
+        <div class="auth-card">
+            <header class="auth-header">
+                <p class="eyebrow">Cadastro</p>
+                <h1>Crie sua conta</h1>
+                <p>Informe seus dados para acessar o conteúdo exclusivo do Alvo Hub.</p>
+            </header>
+
+            <form id="registerForm" class="auth-form" novalidate>
+                <div class="input-group">
+                    <label class="label" for="registerCpf">CPF</label>
+                    <input id="registerCpf" name="registerCpf" class="input-field" type="text"
+                        placeholder="000.000.000-00" autocomplete="username" />
+                </div>
+
+                <div class="input-group">
+                    <label class="label" for="registerEmail">E-mail</label>
+                    <input id="registerEmail" name="registerEmail" class="input-field" type="email"
+                        placeholder="seu@email.com" autocomplete="email" />
+                </div>
+
+                <div class="input-group">
+                    <label class="label" for="registerWhatsapp">Telefone WhatsApp</label>
+                    <input id="registerWhatsapp" name="registerWhatsapp" class="input-field" type="tel"
+                        placeholder="(00) 0 0000-0000" autocomplete="tel" />
+                </div>
+
+                <div class="input-group">
+                    <label class="label" for="registerPassword">Senha</label>
+                    <input id="registerPassword" name="registerPassword" class="input-field" type="password"
+                        placeholder="Senha" autocomplete="new-password" />
+                </div>
+
+                <div class="auth-actions">
+                    <button type="submit" class="button-primary">Cadastrar</button>
+                    <a class="form-link" href="/">Voltar ao login</a>
+                </div>
+            </form>
+
+            <div class="message-box hidden" aria-live="polite"></div>
+        </div>
+    </div>
+    <script type="module" src="../js/security.js"></script>
+</body>
+
+</html>

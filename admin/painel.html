@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel Admin | Alvo Hub</title>
+    <link rel="icon" href="../assets/logo.png" />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+</head>
+
+<body>
+    <div class="admin-shell">
+        <div class="admin-card">
+            <div class="admin-banner">
+                <div>
+                    <p class="eyebrow">Painel Admin</p>
+                    <h1>Tela de gerenciamento</h1>
+                    <p class="admin-description">Filtre, visualize e adicione uploads de conteúdo. Crie tags e mantenha
+                        o catálogo organizado mesmo sem backend.</p>
+                </div>
+                <div class="admin-meta">
+                    <span class="user-chip">olá, fulano</span>
+                    <a class="button-secondary" href="/">Sair</a>
+                </div>
+            </div>
+
+            <div class="admin-grid">
+                <section class="admin-main">
+                    <div class="panel-block control-panel">
+                        <div class="panel-heading">
+                            <span>Gerenciar conteúdo</span>
+                        </div>
+                        <div class="control-sections">
+                            <div class="control-section">
+                                <label class="label" for="adminSearch">Pesquisar conteúdo</label>
+                                <input id="adminSearch" class="input-field" type="search"
+                                    placeholder="Buscar por título, tag ou arquivo" />
+                            </div>
+
+                            <div class="control-section">
+                                <div class="panel-heading panel-heading--small">
+                                    <span>Selecionar categoria</span>
+                                </div>
+                                <div id="tagFilter" class="tag-list"></div>
+                            </div>
+
+                            <div class="control-section upload-block">
+                                <div class="panel-heading panel-heading--small">
+                                    <span>Adicionar novo conteúdo</span>
+                                </div>
+                                <form id="uploadForm" class="upload-form" novalidate>
+                                    <label class="label" for="contentFile">Conteúdo</label>
+                                    <input id="contentFile" name="contentFile" class="input-field" type="file" />
+
+                                    <label class="label" for="contentTag">Tag existente</label>
+                                    <select id="contentTag" name="contentTag" class="input-field"></select>
+
+                                    <label class="label" for="newTagInput">Criar nova tag</label>
+                                    <div class="tag-creator">
+                                        <input id="newTagInput" class="input-field" type="text"
+                                            placeholder="Ex: PDF, Instagram, Online" />
+                                        <button id="addTagBtn" type="button"
+                                            class="button-secondary small">Criar</button>
+                                    </div>
+
+                                    <button type="submit" class="button-primary">Adicionar conteúdo</button>
+                                </form>
+                                <div id="adminMessage" class="message-box hidden" aria-live="polite"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-block panel-block--full">
+                        <div class="panel-heading">
+                            <span>Conteúdos cadastrados</span>
+                        </div>
+                        <div id="contentList" class="content-grid"></div>
+                        <div id="adminPagination" class="pagination"></div>
+                        <div id="adminNoResults" class="no-results hidden">Nenhum conteúdo encontrado. Ajuste a pesquisa
+                            ou selecione outra tag.</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="../js/admin.js"></script>
+</body>
+
+</html>
