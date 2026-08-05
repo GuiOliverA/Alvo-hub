@@ -21,9 +21,15 @@
 
             <form id="registerForm" class="auth-form" novalidate>
                 <div class="input-group">
+                    <label class="label" for="registerName">Nome completo</label>
+                    <input id="registerName" name="registerName" class="input-field" type="text"
+                        placeholder="Seu nome completo" autocomplete="name" required />
+                </div>
+
+                <div class="input-group">
                     <label class="label" for="registerCpf">CPF</label>
                     <input id="registerCpf" name="registerCpf" class="input-field" type="text"
-                        placeholder="000.000.000-00" autocomplete="username" />
+                        placeholder="000.000.000-00" inputmode="numeric" maxlength="14" autocomplete="off" required />
                 </div>
 
                 <div class="input-group">
@@ -35,13 +41,19 @@
                 <div class="input-group">
                     <label class="label" for="registerWhatsapp">Telefone WhatsApp</label>
                     <input id="registerWhatsapp" name="registerWhatsapp" class="input-field" type="tel"
-                        placeholder="(00) 0 0000-0000" autocomplete="tel" />
+                        placeholder="(00) 00000-0000" inputmode="numeric" maxlength="15" autocomplete="tel" required />
                 </div>
 
                 <div class="input-group">
                     <label class="label" for="registerPassword">Senha</label>
                     <input id="registerPassword" name="registerPassword" class="input-field" type="password"
-                        placeholder="Senha" autocomplete="new-password" />
+                        placeholder="Mínimo de 6 caracteres" autocomplete="new-password" minlength="6" required />
+                </div>
+
+                <div class="input-group">
+                    <label class="label" for="registerPasswordConfirmation">Confirmar senha</label>
+                    <input id="registerPasswordConfirmation" name="registerPasswordConfirmation" class="input-field"
+                        type="password" placeholder="Repita a senha" autocomplete="new-password" minlength="6" required />
                 </div>
 
                 <div class="auth-actions">

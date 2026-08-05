@@ -25,8 +25,51 @@ function isSupabaseReady() {
     return status.enabled;
 }
 
+function onlyDigits(value = "") {
+    return value.replace(/\D/g, "");
+}
+
+function formatCpf(value) {
+    const digits = onlyDigits(value).slice(0, 11);
+    return digits
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+}
+
+function formatPhone(value) {
+    const digits = onlyDigits(value).slice(0, 11);
+    if (digits.length <= 10) {
+        return digits.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{4})(\d)/, "$1-$2");
+    }
+    return digits.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2");
+}
+
+function isValidCpf(value) {
+    const cpf = onlyDigits(value);
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+
+    const calculateDigit = (base, factor) => {
+        const total = base.split("").reduce((sum, digit, index) => sum + Number(digit) * (factor - index), 0);
+        const remainder = (total * 10) % 11;
+        return remainder === 10 ? 0 : remainder;
+    };
+
+    return calculateDigit(cpf.slice(0, 9), 10) === Number(cpf[9]) &&
+        calculateDigit(cpf.slice(0, 10), 11) === Number(cpf[10]);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     if (!authForm) return;
+
+    const cpfInput = document.getElementById("registerCpf");
+    const phoneInput = document.getElementById("registerWhatsapp");
+    cpfInput?.addEventListener("input", () => {
+        cpfInput.value = formatCpf(cpfInput.value);
+    });
+    phoneInput?.addEventListener("input", () => {
+        phoneInput.value = formatPhone(phoneInput.value);
+    });
 
     authForm.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -76,13 +119,35 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (authForm.id === "registerForm") {
+            const nome = values.registerName?.trim();
             const cpf = values.registerCpf?.trim();
             const email = values.registerEmail?.trim();
             const whatsapp = values.registerWhatsapp?.trim();
             const password = values.registerPassword?.trim();
+            const passwordConfirmation = values.registerPasswordConfirmation?.trim();
 
-            if (!cpf || !email || !whatsapp || !password) {
+            if (!nome || !cpf || !email || !whatsapp || !password || !passwordConfirmation) {
                 setMessage("Preencha todos os campos para criar sua conta.");
+                return;
+            }
+
+            if (!isValidCpf(cpf)) {
+                setMessage("Informe um CPF válido.");
+                return;
+            }
+
+            if (onlyDigits(whatsapp).length < 10) {
+                setMessage("Informe um telefone válido com DDD.");
+                return;
+            }
+
+            if (password.length < 6) {
+                setMessage("A senha deve ter pelo menos 6 caracteres.");
+                return;
+            }
+
+            if (password !== passwordConfirmation) {
+                setMessage("A confirmação de senha não corresponde à senha informada.");
                 return;
             }
 
@@ -92,6 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     const response = await signUpWithSupabase({
                         email,
                         password,
+                        nome,
                         cpf,
                         whatsapp,
                     });

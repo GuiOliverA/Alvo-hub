@@ -27,7 +27,7 @@ async function signUpWithSupabase({ email, password, nome, cpf, whatsapp }) {
     return supabaseClient.auth.signUp({
         email,
         password,
-        options: { data: { nome, cpf, whatsapp } }
+        options: { data: { nome, cpf, telefone: whatsapp, email } }
     });
 }
 
