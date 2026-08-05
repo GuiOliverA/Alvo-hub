@@ -52,6 +52,8 @@ as $$
   select coalesce((select role = 'admin' from public.profiles where id = auth.uid()), false);
 $$;
 
+grant execute on function public.is_admin() to authenticated;
+
 alter table public.conteudos enable row level security;
 
 drop policy if exists "Authenticated users can read active content" on public.conteudos;
