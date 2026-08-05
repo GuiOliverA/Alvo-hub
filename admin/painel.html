@@ -17,8 +17,8 @@
                 <div>
                     <p class="eyebrow">Painel Admin</p>
                     <h1>Tela de gerenciamento</h1>
-                    <p class="admin-description">Filtre, visualize e adicione uploads de conteúdo. Crie tags e mantenha
-                        o catálogo organizado mesmo sem backend.</p>
+                    <p class="admin-description">Envie PDFs, imagens e vídeos com prévia visual para manter o catálogo
+                        organizado.</p>
                 </div>
                 <div class="admin-meta">
                     <span class="user-chip">olá, fulano</span>
@@ -51,8 +51,18 @@
                                     <span>Adicionar novo conteúdo</span>
                                 </div>
                                 <form id="uploadForm" class="upload-form" novalidate>
-                                    <label class="label" for="contentFile">Conteúdo</label>
-                                    <input id="contentFile" name="contentFile" class="input-field" type="file" />
+                                    <label class="label" for="contentTitle">Título</label>
+                                    <input id="contentTitle" name="contentTitle" class="input-field" type="text"
+                                        placeholder="Ex: Manual de marca" required />
+
+                                    <label class="label" for="contentDescription">Descrição</label>
+                                    <textarea id="contentDescription" name="contentDescription" class="input-field"
+                                        rows="3" placeholder="Descreva brevemente o material."></textarea>
+
+                                    <label class="label" for="contentFile">Arquivo</label>
+                                    <input id="contentFile" name="contentFile" class="input-field" type="file"
+                                        accept="application/pdf,image/*,video/*" required />
+                                    <p class="upload-help">PDF, imagem ou vídeo. PDFs mostram a primeira página e o total de páginas.</p>
 
                                     <label class="label" for="contentTag">Tag existente</label>
                                     <select id="contentTag" name="contentTag" class="input-field"></select>

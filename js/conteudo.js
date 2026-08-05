@@ -22,6 +22,40 @@ function formatDate(date) {
   });
 }
 
+function escapeHtml(value = "") {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function getFileType(item) {
+  if (item.file_type) return item.file_type;
+  const fileName = item.fileName || "";
+  if (fileName.toLowerCase().endsWith(".pdf")) return "pdf";
+  return "file";
+}
+
+function createPreviewHtml(item) {
+  if (!item.file_url) return "";
+  const url = escapeHtml(item.file_url);
+  const title = escapeHtml(item.title || "conteúdo");
+  const type = getFileType(item);
+
+  if (type === "image") {
+    return `<a class="content-preview" href="${url}" target="_blank" rel="noopener"><img src="${url}" alt="Prévia de ${title}" loading="lazy" /></a>`;
+  }
+  if (type === "video") {
+    return `<video class="content-preview" controls preload="metadata"><source src="${url}" />Seu navegador não suporta vídeo.</video>`;
+  }
+  if (type === "pdf") {
+    return `<a class="content-preview pdf-preview" href="${url}" target="_blank" rel="noopener" aria-label="Abrir PDF: ${title}"><iframe src="${url}#page=1&toolbar=0&navpanes=0&scrollbar=0" title="Prévia da primeira página de ${title}" loading="lazy"></iframe><span class="pdf-preview-label">Ver PDF</span></a>`;
+  }
+  return `<a class="file-link" href="${url}" target="_blank" rel="noopener">Abrir arquivo</a>`;
+}
+
 function updateCurrentDate() {
   if (!currentDate) return;
   currentDate.textContent = `Publicação: ${formatDate(new Date())}`;
@@ -117,15 +151,20 @@ function updateCards() {
 
 function createCardHtml(item) {
   const formattedDate = item.date || formatDate(new Date());
+  const fileType = getFileType(item);
+  const pageLabel = fileType === "pdf" && item.page_count
+    ? ` · ${item.page_count} página${item.page_count === 1 ? "" : "s"}`
+    : "";
   return `
-    <article class="content-card" data-category="${item.tag || "online"}">
+    <article class="content-card" data-category="${escapeHtml(item.tag || item.categoria || "online")}">
       <div class="card-header">
-        <span class="card-badge">${item.tag ? item.tag : "Online"}</span>
-        <span class="card-date">${formattedDate}</span>
+        <span class="card-badge">${escapeHtml(item.tag || item.categoria || "Online")}</span>
+        <span class="card-date">${escapeHtml(formattedDate)}</span>
       </div>
-      <h2>${item.title || "Sem título"}</h2>
-      <p>${item.description || "Descrição não disponível."}</p>
-      <div class="card-meta">${item.fileName ? `Formato: ${item.fileName}` : "Formato: online"}</div>
+      ${createPreviewHtml(item)}
+      <h2>${escapeHtml(item.title || "Sem título")}</h2>
+      <p>${escapeHtml(item.description || "Descrição não disponível.")}</p>
+      <div class="card-meta">${item.fileName ? `Formato: ${escapeHtml(item.fileName)}${pageLabel}` : "Formato: online"}</div>
     </article>`;
 }
 

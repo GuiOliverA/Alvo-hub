@@ -3,6 +3,8 @@ import {
   fetchContentItems,
   fetchTags,
   insertContentItem,
+  removeContentFile,
+  uploadContentFile,
 } from "./supabase.js";
 
 const tagFilter = document.getElementById("tagFilter");
@@ -58,6 +60,47 @@ function getDateValue(item) {
   return formatDate(new Date());
 }
 
+function escapeHtml(value = "") {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function getFileType(file) {
+  if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) return "pdf";
+  if (file.type.startsWith("image/")) return "image";
+  if (file.type.startsWith("video/")) return "video";
+  return "file";
+}
+
+async function getPdfPageCount(file) {
+  const pdfjs = await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs");
+  pdfjs.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+  const document = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+  const pageCount = document.numPages;
+  await document.destroy();
+  return pageCount;
+}
+
+function mediaPreviewHtml(item) {
+  const url = item.file_url || item.previewUrl;
+  if (!url) return "";
+  const safeUrl = escapeHtml(url);
+  if (item.file_type === "image") {
+    return `<img class="admin-media-preview" src="${safeUrl}" alt="Prévia de ${escapeHtml(item.title)}" />`;
+  }
+  if (item.file_type === "video") {
+    return `<video class="admin-media-preview" src="${safeUrl}" muted preload="metadata"></video>`;
+  }
+  if (item.file_type === "pdf") {
+    return `<div class="admin-pdf-preview"><span>PDF</span><small>${item.page_count || "?"} página(s)</small></div>`;
+  }
+  return "";
+}
+
 async function loadAdminData() {
   if (!getSupabaseStatus().enabled) {
     return;
@@ -77,6 +120,9 @@ async function loadAdminData() {
         date: getDateValue(item),
         tag: item.tag || "online",
         description: item.description || "Descrição não disponível.",
+        file_url: item.file_url,
+        file_type: item.file_type,
+        page_count: item.page_count,
       }));
     }
   } catch (error) {
@@ -174,12 +220,13 @@ function renderContents() {
     card.className = "content-card";
     card.innerHTML = `
       <div class="card-top">
-        <span class="card-badge">${item.tag}</span>
-        <span class="card-date">${item.date}</span>
+        <span class="card-badge">${escapeHtml(item.tag)}</span>
+        <span class="card-date">${escapeHtml(item.date)}</span>
       </div>
-      <h2>${item.title}</h2>
-      <p>${item.description}</p>
-      <div class="file-name">Arquivo: ${item.fileName}</div>
+      ${mediaPreviewHtml(item)}
+      <h2>${escapeHtml(item.title)}</h2>
+      <p>${escapeHtml(item.description)}</p>
+      <div class="file-name">Arquivo: ${escapeHtml(item.fileName)}</div>
     `;
     contentList.appendChild(card);
   });
@@ -229,6 +276,8 @@ uploadForm?.addEventListener("submit", async (event) => {
   const fileInput = document.getElementById("contentFile");
   const selectedFile = fileInput?.files?.[0];
   const selectedTag = contentTag?.value;
+  const titleInput = document.getElementById("contentTitle");
+  const descriptionInput = document.getElementById("contentDescription");
 
   if (!selectedFile) {
     showMessage("Selecione um arquivo antes de adicionar o conteúdo.");
@@ -240,31 +289,60 @@ uploadForm?.addEventListener("submit", async (event) => {
     return;
   }
 
+  const fileType = getFileType(selectedFile);
+  if (fileType === "file") {
+    showMessage("Envie um arquivo PDF, uma imagem ou um vídeo.");
+    return;
+  }
+
+  let pageCount = null;
+  if (fileType === "pdf") {
+    try {
+      pageCount = await getPdfPageCount(selectedFile);
+    } catch (error) {
+      showMessage("Não foi possível ler este PDF. Verifique se o arquivo não está corrompido.");
+      return;
+    }
+  }
+
   const newItem = {
-    title: selectedFile.name.replace(/\.[^/.]+$/, ""),
+    title: titleInput?.value.trim() || selectedFile.name.replace(/\.[^/.]+$/, ""),
     fileName: selectedFile.name,
     date: formatDate(new Date()),
     tag: selectedTag,
-    description: `Upload: ${selectedFile.type || "tipo não identificado"}`,
+    categoria: selectedTag,
+    description: descriptionInput?.value.trim() || `Upload: ${selectedFile.type || "tipo não identificado"}`,
+    file_type: fileType,
+    page_count: pageCount,
+    size_bytes: selectedFile.size,
   };
 
   if (getSupabaseStatus().enabled) {
+    let storagePath;
     try {
+      const upload = await uploadContentFile(selectedFile);
+      storagePath = upload.path;
+      newItem.file_url = upload.url;
+      newItem.storage_path = upload.path;
       await insertContentItem(newItem);
       contents.unshift(newItem);
       renderContents();
-      showMessage("Conteúdo adicionado ao backend e exibido no painel.");
+      showMessage(fileType === "pdf" ? `PDF enviado com ${pageCount} página(s).` : "Conteúdo enviado e exibido no painel.");
     } catch (error) {
+      if (storagePath) await removeContentFile(storagePath);
       showMessage(error.message || "Erro ao adicionar conteúdo no backend.");
       return;
     }
   } else {
+    newItem.previewUrl = URL.createObjectURL(selectedFile);
     contents.unshift(newItem);
     renderContents();
-    showMessage("Conteúdo adicionado ao painel (simulado).");
+    showMessage(fileType === "pdf" ? `PDF adicionado com ${pageCount} página(s) (simulado).` : "Conteúdo adicionado ao painel (simulado).");
   }
 
   if (fileInput) fileInput.value = "";
+  if (titleInput) titleInput.value = "";
+  if (descriptionInput) descriptionInput.value = "";
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
