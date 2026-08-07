@@ -3,10 +3,14 @@ import {
     signInWithSupabase,
     signUpWithSupabase,
     resetPasswordSupabase,
+    updatePasswordSupabase,
+    onSupabaseAuthStateChange,
+    getSupabaseSession,
 } from "./supabase.js";
 
 const authForm = document.querySelector("form.auth-form");
 const messageBox = document.querySelector(".message-box");
+let recoveryMode = false;
 
 function setMessage(text) {
     if (!messageBox) return;
@@ -23,6 +27,22 @@ function clearMessage() {
 function isSupabaseReady() {
     const status = getSupabaseStatus();
     return status.enabled;
+}
+
+function activatePasswordReset() {
+    if (recoveryMode) return;
+    recoveryMode = true;
+
+    const emailGroup = document.getElementById("recoverEmail")?.closest(".input-group");
+    const passwordFields = document.getElementById("newPasswordFields");
+    const submitButton = document.getElementById("recoverSubmit");
+    const description = document.getElementById("recoverDescription");
+
+    emailGroup?.classList.add("hidden");
+    passwordFields?.classList.remove("hidden");
+    if (submitButton) submitButton.textContent = "Redefinir senha";
+    if (description) description.textContent = "Defina uma nova senha para continuar acessando sua conta.";
+    document.getElementById("newPassword")?.focus();
 }
 
 function onlyDigits(value = "") {
@@ -61,6 +81,26 @@ function isValidCpf(value) {
 
 document.addEventListener("DOMContentLoaded", () => {
     if (!authForm) return;
+
+    if (authForm.id === "recoverForm" && window.location.hash.includes("type=recovery")) {
+        activatePasswordReset();
+    }
+
+    if (authForm.id === "recoverForm" && isSupabaseReady()) {
+        getSupabaseSession().then(({ data }) => {
+            if (data.session) activatePasswordReset();
+        });
+    }
+
+    const authSubscription = onSupabaseAuthStateChange((event) => {
+        if (authForm.id === "recoverForm" && event === "PASSWORD_RECOVERY") {
+            activatePasswordReset();
+        }
+    });
+
+    window.addEventListener("beforeunload", () => {
+        authSubscription?.data?.subscription?.unsubscribe();
+    });
 
     const cpfInput = document.getElementById("registerCpf");
     const phoneInput = document.getElementById("registerWhatsapp");
@@ -185,6 +225,48 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (authForm.id === "recoverForm") {
+            if (recoveryMode) {
+                const newPassword = values.newPassword?.trim();
+                const confirmNewPassword = values.confirmNewPassword?.trim();
+
+                if (!newPassword || !confirmNewPassword) {
+                    setMessage("Informe e confirme a nova senha.");
+                    return;
+                }
+
+                if (newPassword.length < 6) {
+                    setMessage("A senha deve ter pelo menos 6 caracteres.");
+                    return;
+                }
+
+                if (newPassword !== confirmNewPassword) {
+                    setMessage("A confirmação de senha não corresponde à nova senha.");
+                    return;
+                }
+
+                if (!isSupabaseReady()) {
+                    setMessage("O Supabase não está configurado para redefinir a senha.");
+                    return;
+                }
+
+                setMessage("Redefinindo senha...");
+                try {
+                    const response = await updatePasswordSupabase(newPassword);
+                    if (response.error) {
+                        setMessage(response.error.message || "Não foi possível redefinir a senha.");
+                        return;
+                    }
+
+                    setMessage("Senha redefinida com sucesso. Redirecionando para o login...");
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 1200);
+                } catch (error) {
+                    setMessage(error.message || "Erro ao conectar com o servidor.");
+                }
+                return;
+            }
+
             const email = values.recoverEmail?.trim();
 
             if (!email) {

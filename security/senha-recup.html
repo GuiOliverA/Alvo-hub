@@ -16,7 +16,7 @@
             <header class="auth-header">
                 <p class="eyebrow">Recuperar senha</p>
                 <h1>Esqueceu a senha?</h1>
-                <p>Informe seu e-mail cadastrado para receber as instruções de recuperação.</p>
+                <p id="recoverDescription">Informe seu e-mail cadastrado para receber as instruções de recuperação.</p>
             </header>
 
             <form id="recoverForm" class="auth-form" novalidate>
@@ -26,8 +26,22 @@
                         placeholder="seu@email.com" autocomplete="email" />
                 </div>
 
+                <div id="newPasswordFields" class="hidden">
+                    <div class="input-group">
+                        <label class="label" for="newPassword">Nova senha</label>
+                        <input id="newPassword" name="newPassword" class="input-field" type="password"
+                            placeholder="Mínimo de 6 caracteres" autocomplete="new-password" minlength="6" />
+                    </div>
+
+                    <div class="input-group">
+                        <label class="label" for="confirmNewPassword">Confirmar nova senha</label>
+                        <input id="confirmNewPassword" name="confirmNewPassword" class="input-field" type="password"
+                            placeholder="Repita a nova senha" autocomplete="new-password" minlength="6" />
+                    </div>
+                </div>
+
                 <div class="auth-actions">
-                    <button type="submit" class="button-primary">Enviar instruções</button>
+                    <button id="recoverSubmit" type="submit" class="button-primary">Enviar instruções</button>
                     <a class="form-link" href="/">Voltar ao login</a>
                 </div>
             </form>

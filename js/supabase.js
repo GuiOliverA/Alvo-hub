@@ -72,6 +72,21 @@ async function insertContentItem(item) {
     return data;
 }
 
+async function updatePasswordSupabase(password) {
+    if (!supabaseClient) throw new Error("Supabase não está configurado.");
+    return supabaseClient.auth.updateUser({ password });
+}
+
+function onSupabaseAuthStateChange(callback) {
+    if (!supabaseClient) return null;
+    return supabaseClient.auth.onAuthStateChange(callback);
+}
+
+async function getSupabaseSession() {
+    if (!supabaseClient) return { data: { session: null }, error: null };
+    return supabaseClient.auth.getSession();
+}
+
 function getSafeFileName(name) {
     return name
         .normalize("NFD")
@@ -106,6 +121,9 @@ export {
     signInWithSupabase,
     signUpWithSupabase,
     resetPasswordSupabase,
+    updatePasswordSupabase,
+    onSupabaseAuthStateChange,
+    getSupabaseSession,
     fetchContentItems,
     fetchTags,
     insertContentItem,
